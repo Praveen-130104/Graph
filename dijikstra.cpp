@@ -37,33 +37,31 @@
 using namespace std;
 
 //0-based indexing
-vector<int> dijikstra(pair<int,int> node , vector<pair<int,int>> adj[] , int n , int m  ){
+vector<int> dijkstra(pair<int, int> node, vector<pair<int, int>> adj[], int n) {
+    vector<int> distance(n, INT_MAX);
+    distance[node.second] = 0;
 
-    vector<int> distance(n ,INT_MAX);
-    distance[node.first] = 0;
-
-    vector<bool> visited(n,false);
+    vector<bool> visited(n, false);
 
     //priority queue - min Heap
-    priority_queue<pair<int,int> ,vector<pair<int,int>> , greater<pair<int,int>>> minHeap;
+    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> minHeap;
 
-    minHeap.push(node);
+    minHeap.push({0, node.second}); // push {distance, node}
 
-    while(!minHeap.empty()){
-        pair<int,int> vertex = minHeap.top();
+    while (!minHeap.empty()) {
+        pair<int, int> vertex = minHeap.top();
         minHeap.pop();
 
-        if(visited[vertex.first])continue;
-        visited[vertex.first] = true;
+        if (visited[vertex.second]) continue;
+        visited[vertex.second] = true;
 
-        for(auto neighbour : adj[vertex.first]){
-            int d = neighbour.second + distance[vertex.first] ; 
-            if(d < distance[neighbour.first]){
-                distance[neighbour.first] =  d;
-                minHeap.push({neighbour.first , d});
+        for (auto neighbour : adj[vertex.second]) { // vertex.second to get the current node
+            int d = neighbour.first + distance[vertex.second];
+            if (d < distance[neighbour.second]) {
+                distance[neighbour.second] = d;
+                minHeap.push({d, neighbour.second}); // push {new_distance, neighbour_node}
             }
         }
-        visited[vertex.first] = true;
     }
     return distance;
 
@@ -73,28 +71,34 @@ vector<int> dijikstra(pair<int,int> node , vector<pair<int,int>> adj[] , int n ,
     */
 }
 
-int main(){
-    int n, m ;
-    cin>>n>>m;
+int main() {
+    int n, m;
+    cin >> n >> m;
 
     //store the neighbour and weight in pairs
-    vector<pair<int,int>> adj[n+1];
-    
-    for(int i = 0;i<m;i++){
-        int u , v , w ;
-        cin>>u>>v>>w;
-        
+    vector<pair<int, int>> adj[n];
+
+    for (int i = 0; i < m; i++) {
+        int u, v, w;
+        cin >> u >> v >> w;
+
         //undirected graph
-        adj[u].push_back({v,w});
-        adj[v].push_back({u,w});
-
+        adj[u].push_back({w, v});
+        adj[v].push_back({w, u});
     }
-    pair<int,int> start = { 0 ,0 };
+    pair<int, int> start = {0, 0};
 
-    vector<int> distance = dijikstra(start , adj , n ,m); // calculating distance from node 0
+    vector<int> distance = dijkstra(start, adj, n); // calculating distance from node 0
 
-    for(auto it: distance)cout<<it<<" ";
+    for (auto it : distance) {
+        if (it == INT_MAX) {
+            cout << "INF ";
+        } else {
+            cout << it << " ";
+        }
+    }
 
+    return 0;
 }
 
 
